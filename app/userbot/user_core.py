@@ -42,7 +42,7 @@ async def get_post_list(app: Client, chat_id: str, limit: int) -> List[Message]:
     return result
             
 
-async def collect_post(app : Client, limit : int, chats : List[str]):
+async def collect_post(app : Client, limit : int, chats : List[str]) -> List[Message]:
     result = []
     for chat in chats:
         posts = await get_post_list(
@@ -52,7 +52,7 @@ async def collect_post(app : Client, limit : int, chats : List[str]):
         result.extend(posts)
     return result
 
-async def convert_message(app : Client, chat_id: int, message: Message, gpt : GPTController, prompt : str):
+async def convert_message(app : Client, chat_id: int, message: Message, gpt : GPTController, prompt : str) -> str:
     if message.text:
         return gpt.paraphrase_text(remove_links(message.text), prompt=prompt) if message.caption else "", message.entities,
     
@@ -93,7 +93,8 @@ async def send_message(app : Client, chat_id: int, message: Message, gpt : GPTCo
                 photo=message.photo.file_id,
                 caption= text,
                 caption_entities= None,
-                reply_markup=message.reply_markup
+                reply_markup=message.reply_markup,
+                disable_notification=True
         )
                 print(f"Сообщение после обработки {text}")
                 
@@ -109,7 +110,8 @@ async def send_message(app : Client, chat_id: int, message: Message, gpt : GPTCo
             video=message.video.file_id,
             caption= gpt.paraphrase_text(remove_links(message.caption), prompt=prompt) if message.caption else "",
             caption_entities= None,
-            reply_markup=message.reply_markup
+            reply_markup=message.reply_markup,
+            disable_notification=True
         )
                 print(f"Сообщение после обработки {text}")
                 
@@ -123,7 +125,8 @@ async def send_message(app : Client, chat_id: int, message: Message, gpt : GPTCo
             document=message.document.file_id,
             caption=gpt.paraphrase_text(remove_links(message.caption), prompt=prompt) if message.caption else "",
             caption_entities= None,
-            reply_markup=message.reply_markup
+            reply_markup=message.reply_markup,
+            disable_notification=True
         )
             except Exception as e:
                 print(e)
@@ -131,7 +134,8 @@ async def send_message(app : Client, chat_id: int, message: Message, gpt : GPTCo
         elif message.sticker:
             await app.send_sticker(
             chat_id,
-            sticker=message.sticker.file_id
+            sticker=message.sticker.file_id,
+            disable_notification=True
         )
         elif message.animation:
             try:
@@ -140,7 +144,8 @@ async def send_message(app : Client, chat_id: int, message: Message, gpt : GPTCo
             animation=message.animation.file_id,
             caption=gpt.paraphrase_text(remove_links(message.caption), prompt=prompt) if message.caption else "",
             caption_entities= None,
-            reply_markup=message.reply_markup
+            reply_markup=message.reply_markup,
+            disable_notification=True
         )
             except Exception as e:
                 print(e)
@@ -149,7 +154,8 @@ async def send_message(app : Client, chat_id: int, message: Message, gpt : GPTCo
             await app.send_video_note(
             chat_id,
             video_note=message.video_note.file_id,
-            reply_markup=message.reply_markup
+            reply_markup=message.reply_markup,
+            disable_notification=True
         )
         else:
             print("Не удалось обработать сообщение.")
